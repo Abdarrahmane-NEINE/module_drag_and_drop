@@ -46,10 +46,10 @@ window.onload=function(){
     // console.log(file);
     let thumbnailElement = dropZoneElement.querySelector(".drop-zone__thumb");
 
-    // la premiere fois on a suprime la zone d'ivitation
+    // la premiere fois on a suprime la zone d'invitation
       if(dropZoneElement.querySelector(".drop-zone__prompt")){
-          // dropZoneElement.querySelector(".drop-zone__prompt").remove();
-          console.log(dropZoneElement.querySelector(".drop-zone__prompt").remove());
+          dropZoneElement.querySelector(".drop-zone__prompt").remove();
+          // console.log(dropZoneElement.querySelector(".drop-zone__prompt").remove());
           document.querySelector(".top-bar").style.display = "block";
       }
     // Pour la premiere fois on a pas une vignette element, donc on le crée
@@ -92,6 +92,7 @@ window.onload=function(){
 
              //set scale
              const viewport =page.getViewport({ scale });
+             // console.log(viewport);
              canvas.height = viewport.height;
              canvas.width = viewport.width;
 
@@ -99,6 +100,7 @@ window.onload=function(){
                canvasContext: ctx,
                viewport
              }
+              // console.log(renderCtx);
              page.render(renderCtx).promise.then(() => {
                pageIsRendering = false;
 
@@ -140,21 +142,37 @@ window.onload=function(){
          pdfjsLib.getDocument(url).promise.then(pdfDoc_ => {
              pdfDoc = pdfDoc_;
              // console.log(pdfDoc);
-
+             if(pdfDoc){
                document.querySelector("#page-count").textContent = pdfDoc.numPages;
                renderPage(pageNum);
+               // add top bar
+               document.querySelector('.top-bar').style.display = 'block';
+               // add canvas
+               document.querySelector('#pdf-render').style.display = 'block';
+               // remove ERROR message
+               document.querySelector('#error').style.display = 'none';
+             }
+
+
+
+               // si il y a un messa
          })
            .catch(err => {
-             //displat error
-             const div = document.createElement('div');
-               div.className= 'error';
-               div.appendChild(document.createTextNode("Mauvais format"));
-             if(div){
-               document.querySelector('body').insertBefore(div, canvas);
-               // remove top bar
-               document.querySelector('.top-bar').style.display = 'none';
-               document.location.reload();
-             }
+             // console.log(err);
+             if(!pdfDoc){
+               // //display error
+               const error = document.querySelector('#error');
+            //   console.log(error);
+               error.classList.add("error");
+               error.innerHTML = "Seul le format pdf accépté";
+
+                // add  error message
+                document.querySelector('#error').style.display = 'block';
+                // remove top bar
+                document.querySelector('.top-bar').style.display = 'none';
+                // remove canvas
+                document.querySelector('#pdf-render').style.display = 'none';
+              }
 
            });
          // Bouton Events
@@ -165,7 +183,7 @@ window.onload=function(){
          //   var nextPage = document.getElementById('next-page');
          //   if(nextPage){
          //     nextPage.addEventListener('click', showPrevPage);
-//          //   }
+          //   }
          document.querySelector('#prev-page').addEventListener('click', showPrevPage);
          document.querySelector('#next-page').addEventListener('click', showNextPage);
        };
